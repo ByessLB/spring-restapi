@@ -34,7 +34,7 @@
 
 	<build>
 		<plugins>
-			            <!-- Ce plugin permet de bénéficier des "goals" maven suivant : run, start, stop
+			<!-- Ce plugin permet de bénéficier des "goals" maven suivant : run, start, stop
             Utile au débogage de l'application via un IDE.  -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

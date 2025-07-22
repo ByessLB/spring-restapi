@@ -13,49 +13,108 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.afpa.restapi.dao.AccountDao;
 import fr.afpa.restapi.model.Account;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * TODO ajouter la/les annotations nécessaires pour faire de "AccountRestController" un contrôleur de REST API
+ * TODO ajouter la/les annotations nécessaires pour faire de
+ * "AccountRestController" un contrôleur de REST API
  */
+@RestController
+@RequestMapping("/api/accounts")
 public class AccountRestController {
     private final AccountDao accountDao;
 
-    /** 
+    /**
      * TODO implémenter un constructeur
-     *  
+     * 
      * TODO injecter {@link AccountDao} en dépendance par injection via constructeur
-     * Plus d'informations -> https://keyboardplaying.fr/blogue/2021/01/spring-injection-constructeur/
+     * Plus d'informations ->
+     * https://keyboardplaying.fr/blogue/2021/01/spring-injection-constructeur/
      */
 
-    /**
-     * TODO implémenter une méthode qui traite les requêtes GET et qui renvoie une liste de comptes
-     */
+    public AccountRestController(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes GET avec un identifiant "variable de chemin" et qui retourne les informations du compte associé
-     * Plus d'informations sur les variables de chemin -> https://www.baeldung.com/spring-pathvariable
+     * TODO implémenter une méthode qui traite les requêtes GET et qui renvoie une
+     * liste de comptes
      */
+    @GetMapping
+    public List<Account> getAllAccounts() {
+        List<Account> listAccount = accountDao.findAll();
+        return listAccount;
+    }
+
+    /**
+     * TODO implémenter une méthode qui traite les requêtes GET avec un identifiant
+     * "variable de chemin" et qui retourne les informations du compte associé
+     * Plus d'informations sur les variables de chemin ->
+     * https://www.baeldung.com/spring-pathvariable
+     */
+    // @GetMapping("api/accounts")
+    // public Optional<Account> getAccount(@RequestParam long param) {
+    // Optional<Account> account = accountDao.findById(param);
+    // return account;
+    // }
+
+    /* ou */
+
+    // Solution sans gestion des erreurs
+    // @GetMapping("/{param}")
+    // public Optional<Account> getAccount(@PathVariable long param) {
+    // Optional<Account> account = accountDao.findById(param);
+    // return account;
+    // }
+
+    @GetMapping("/{param}")
+    public ResponseEntity<?> getAccount(@PathVariable long param) {
+
+        Optional<Account> accountOptional = accountDao.findById(param);
+        if (accountOptional.isPresent()) {
+            return new ResponseEntity<Account>(accountOptional.get(), HttpStatus.OK);
+        } else {
+            return new ErrorResponseEntity();
+        }
+    }
 
     /**
      * TODO implémenter une méthode qui traite les requêtes POST
-     * Cette méthode doit recevoir les informations d'un compte en tant que "request body", elle doit sauvegarder le compte en mémoire et retourner ses informations (en json)
+     * Cette méthode doit recevoir les informations d'un compte en tant que "request
+     * body", elle doit sauvegarder le compte en mémoire et retourner ses
+     * informations (en json)
      * Tutoriel intéressant -> https://stackabuse.com/get-http-post-body-in-spring/
      * Le serveur devrai retourner un code http de succès (201 Created)
      **/
 
+    @PostMapping()
+    public Account create(@RequestBody Account entities) {
+        accountDao.save(entities);
+        return entities;
+    }
+
     /**
      * TODO implémenter une méthode qui traite les requêtes PUT
      */
+    @PutMapping("/{id}")
+    public Account updateAccount(@PathVariable String id, @RequestBody Account entities) {
+        accountDao.save(entities);
+        return entities;
+    }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes  DELETE 
-     * L'identifiant du compte devra être passé en "variable de chemin" (ou "path variable")
-     * Dans le cas d'un suppression effectuée avec succès, le serveur doit retourner un status http 204 (No content)
+     * TODO implémenter une méthode qui traite les requêtes DELETE
+     * L'identifiant du compte devra être passé en "variable de chemin" (ou "path
+     * variable")
+     * Dans le cas d'un suppression effectuée avec succès, le serveur doit retourner
+     * un status http 204 (No content)
      */
+
+    @DeleteMapping("/{id}")
+    public void removeAccount(@PathVariable String id){
+        
+    }
 }
