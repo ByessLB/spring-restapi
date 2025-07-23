@@ -1,7 +1,6 @@
 package fr.afpa.restapi.web.controller;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,7 @@ import fr.afpa.restapi.dao.AccountDao;
 import fr.afpa.restapi.model.Account;
 
 /**
- * TODO ajouter la/les annotations nécessaires pour faire de
+ *  ajouter la/les annotations nécessaires pour faire de
  * "AccountRestController" un contrôleur de REST API
  */
 @RestController
@@ -28,9 +27,9 @@ public class AccountRestController {
     private final AccountDao accountDao;
 
     /**
-     * TODO implémenter un constructeur
+     * implémenter un constructeur
      * 
-     * TODO injecter {@link AccountDao} en dépendance par injection via constructeur
+     * injecter {@link AccountDao} en dépendance par injection via constructeur
      * Plus d'informations ->
      * https://keyboardplaying.fr/blogue/2021/01/spring-injection-constructeur/
      */
@@ -40,7 +39,7 @@ public class AccountRestController {
     }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes GET et qui renvoie une
+     * implémenter une méthode qui traite les requêtes GET et qui renvoie une
      * liste de comptes
      */
     @GetMapping
@@ -50,7 +49,7 @@ public class AccountRestController {
     }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes GET avec un identifiant
+     * implémenter une méthode qui traite les requêtes GET avec un identifiant
      * "variable de chemin" et qui retourne les informations du compte associé
      * Plus d'informations sur les variables de chemin ->
      * https://www.baeldung.com/spring-pathvariable
@@ -82,7 +81,7 @@ public class AccountRestController {
     }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes POST
+     *  implémenter une méthode qui traite les requêtes POST
      * Cette méthode doit recevoir les informations d'un compte en tant que "request
      * body", elle doit sauvegarder le compte en mémoire et retourner ses
      * informations (en json)
@@ -91,22 +90,30 @@ public class AccountRestController {
      **/
 
     @PostMapping()
-    public Account create(@RequestBody Account entities) {
-        accountDao.save(entities);
-        return entities;
+    public ResponseEntity<?> create(@RequestBody Account entities) {
+        Account createdAccount = accountDao.save(entities);
+        if (createdAccount != null) {
+            return new ResponseEntity<Account>(createdAccount, HttpStatus.CREATED);
+        } else {
+            return new ErrorResponseEntity();
+        }
     }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes PUT
+     *  implémenter une méthode qui traite les requêtes PUT
      */
     @PutMapping("/{id}")
-    public Account updateAccount(@PathVariable String id, @RequestBody Account entities) {
-        accountDao.save(entities);
-        return entities;
+    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody Account entities) {
+        entities.setId(id);
+        Account updatedAccount = accountDao.save(entities);
+        if (updatedAccount != null) {
+            return new ResponseEntity<Account>(updatedAccount, HttpStatus.NO_CONTENT);
+        }
+        return new ErrorResponseEntity();
     }
 
     /**
-     * TODO implémenter une méthode qui traite les requêtes DELETE
+     *  implémenter une méthode qui traite les requêtes DELETE
      * L'identifiant du compte devra être passé en "variable de chemin" (ou "path
      * variable")
      * Dans le cas d'un suppression effectuée avec succès, le serveur doit retourner
@@ -114,7 +121,14 @@ public class AccountRestController {
      */
 
     @DeleteMapping("/{id}")
-    public void removeAccount(@PathVariable String id){
-        
+    public ResponseEntity<?> removeAccount(@PathVariable Long id){
+        Optional<Account> tmpAccount = accountDao.findById(id);
+        Account toBeDeletedAccount = tmpAccount.get();
+        if (toBeDeletedAccount != null) {
+            accountDao.delete(toBeDeletedAccount);
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        } else {
+            return new ErrorResponseEntity();
+        }
     }
 }
